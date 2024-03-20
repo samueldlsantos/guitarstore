@@ -1,5 +1,82 @@
-const Header = ({ cart }) => {
-  console.log("Desde el header", cart);
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
+const Header = ({ cart, setCart }) => {
+
+  const MAX_ITEMS_CART = 5;
+  const MIN_ITEMS_CART = 1;
+
+  const cartTotal = () =>
+    cart.reduce((total, item) => total + item.quantity * item.price, 0);
+
+  const handleEliminar = (id) => {
+
+    const MySwal = withReactContent(Swal)
+
+    MySwal.fire({
+      //Para agregar css personalizado a los botones
+      // buttonsStyling: false,
+      // customClass: {
+      //   footer:"flex justify-content-between",
+      //   confirmButton: "btn btn-dark w-100",
+      //   cancelButton: "btn btn-dark w-100"
+      // },
+      title: "Estas seguro de eliminar el articulo?",
+      text: "No seras capaz de revertir esto!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Si, eliminar!",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const updatedCart = cart.filter((item) => item.id !== id);
+    setCart(updatedCart);
+      } 
+    })
+
+    
+  };
+
+  const handleIncreaseQuantity = (id) => {
+
+    const updatedCart = cart.map((item) => {
+      if(item.id === id && item.quantity < MAX_ITEMS_CART){
+        return {...item, quantity: item.quantity + 1}
+      }
+      return item
+    } )
+
+    setCart(updatedCart);
+  }
+
+  const handleDecreaseQuantity = (id) => {
+
+    const updatedCart = cart.map((item) => {
+      if(item.id === id && item.quantity > MIN_ITEMS_CART){
+        return {...item, quantity: item.quantity - 1}
+      }
+      return item
+    } )
+
+    setCart(updatedCart);
+  }
+
+  const clearCart = () => {
+    const MySwal = withReactContent(Swal)
+
+    MySwal.fire({
+      title: "Estas seguro de vaciar el carrito?",
+      text: "No seras capaz de revertir esto!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Si, vaciar!",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setCart([]);
+      } 
+    })
+  }
 
   return (
     <header className="py-5 header">
@@ -9,7 +86,7 @@ const Header = ({ cart }) => {
             <a href="index.html">
               <img
                 className="img-fluid"
-                src="./public/img/logo.svg"
+                src="/img/logo.svg"
                 alt="imagen logo"
               />
             </a>
@@ -18,7 +95,7 @@ const Header = ({ cart }) => {
             <div className="carrito">
               <img
                 className="img-fluid"
-                src="./public/img/carrito.png"
+                src="/img/carrito.png"
                 alt="imagen carrito"
               />
 
@@ -43,23 +120,33 @@ const Header = ({ cart }) => {
                             <td>
                               <img
                                 className="img-fluid"
-                                src={`./public/img/${item.image}.jpg`}
+                                src={`/img/${item.image}.jpg`}
                                 alt="imagen guitarra"
                               />
                             </td>
                             <td>{item.name}</td>
                             <td className="fw-bold">${item.price}</td>
                             <td className="flex align-items-start gap-4">
-                              <button type="button" className="btn btn-dark">
+                              <button type="button" className="btn btn-dark" onClick={() => handleDecreaseQuantity(item.id)}>
                                 -
                               </button>
-                              1
-                              <button type="button" className="btn btn-dark">
+                              {item.quantity}
+                              <button
+                                type="button"
+                                className="btn btn-dark"
+                                onClick={() =>
+                                  handleIncreaseQuantity(item.id)
+                                }
+                              >
                                 +
                               </button>
                             </td>
                             <td>
-                              <button className="btn btn-danger" type="button">
+                              <button
+                                className="btn btn-danger"
+                                type="button"
+                                onClick={() => handleEliminar(item.id)}
+                              >
                                 X
                               </button>
                             </td>
@@ -69,9 +156,10 @@ const Header = ({ cart }) => {
                     </table>
 
                     <p className="text-end">
-                      Total pagar: <span className="fw-bold">$899</span>
+                      Total pagar:{" "}
+                      <span className="fw-bold">${cartTotal()}</span>
                     </p>
-                    <button className="btn btn-dark w-100 mt-3 p-2">
+                    <button className="btn btn-dark w-100 mt-3 p-2" onClick={clearCart}>
                       Vaciar Carrito
                     </button>
                   </>
