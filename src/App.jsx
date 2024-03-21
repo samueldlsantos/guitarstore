@@ -1,24 +1,40 @@
-import { useState, useEffect } from "react";
 import Header from "./components/Header";
 import GuitarCollection from "./components/GuitarCollection";
 import Footer from "./components/Footer";
-import { db } from "./data/database";
+import useCart from "./hooks/useCart";
 
 function App() {
-
-  const [guitars, setGuitars] = useState(db)
-  const [cart, setCart] = useState(JSON.parse(localStorage.getItem("cart")) ?? [])
-
-  useEffect(()=>{
-
-    localStorage.setItem("cart", JSON.stringify(cart))
-
-  },[cart])
+  const {
+    guitars,
+    cart,
+    setCart,
+    handleDeleteItem,
+    handleIncreaseQuantity,
+    handleDecreaseQuantity,
+    handleClearCart,
+    cartTotal,
+    handleAddToCart,
+    guitarExists,
+  } = useCart();
 
   return (
     <>
-      <Header cart={cart} setCart={setCart} />
-      <GuitarCollection guitars={guitars} cart={cart} setCart={setCart} />
+      <Header
+        cart={cart}
+        setCart={setCart}
+        handleDeleteItem={handleDeleteItem}
+        handleIncreaseQuantity={handleIncreaseQuantity}
+        handleDecreaseQuantity={handleDecreaseQuantity}
+        handleClearCart={handleClearCart}
+        cartTotal={cartTotal}
+      />
+      <GuitarCollection
+        guitars={guitars}
+        cart={cart}
+        setCart={setCart}
+        handleAddToCart={handleAddToCart}
+        guitarExists={guitarExists}
+      />
       <Footer />
     </>
   );
